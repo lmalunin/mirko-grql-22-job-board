@@ -1,7 +1,7 @@
-import * as db from './db.js';
+import {Job} from './db.js';
 
 export const resolvers = {
     Query: {
-        jobs: async () => db.store.collection('jobs').list(),
+        jobs: async () => Job.findAll()
     }
 };
