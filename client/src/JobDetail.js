@@ -1,24 +1,20 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { jobs } from './fake-data';
+import React from 'react';
+import {Link, useParams} from 'react-router-dom';
+import {useJob} from "./graphql/hooks";
 
-export class JobDetail extends Component {
-  constructor(props) {
-    super(props);
-    const {jobId} = this.props.match.params;
-    this.state = {job: jobs.find((job) => job.id === jobId)};
-  }
+export const JobDetail = () => {
 
-  render() {
-    const {job} = this.state;
+    const {jobId} = useParams();
+    const {job, loading} = useJob(jobId);
+
     return (
-      <div>
-        <h1 className="title">{job.title}</h1>
-        <h2 className="subtitle">
-          <Link to={`/companies/${job.company.id}`}>{job.company.name}</Link>
-        </h2>
-        <div className="box">{job.description}</div>
-      </div>
+        <div>
+            <h1 className="title">{job?.title}</h1>
+            <h2 className="subtitle">
+                <Link to={`/companies/${job?.company?.id}`}>{job?.company?.name}</Link>
+            </h2>
+            <div className="box">{job?.description}</div>
+        </div>
     );
-  }
+
 }
