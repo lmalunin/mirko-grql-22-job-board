@@ -1,4 +1,3 @@
-import React from 'react';
 import {JobList} from './JobList';
 import {useJobs} from "./graphql/hooks.js";
 
