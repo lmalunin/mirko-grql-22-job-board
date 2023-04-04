@@ -15,6 +15,11 @@ export const resolvers = {
 
     Job: {
         company: (job) => Company.findById(job.companyId)
+    },
 
+    Mutation: {
+        createJob: (_root, {title, companyId, description}) => {
+            return Job.create({title, companyId, description});
+        }
     }
 };

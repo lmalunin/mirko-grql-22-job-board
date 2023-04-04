@@ -5,7 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import expressJwt from 'express-jwt';
 import jwt from 'jsonwebtoken';
-import db from '../server/db.js';
+import db, {User} from '../server/db.js';
 import {readFile} from 'fs/promises';
 import {resolvers} from './resolvers.js';
 
@@ -20,13 +20,15 @@ app.use(cors(), bodyParser.json(), expressJwt({
 
 app.post('/login', (req, res) => {
     const {email, password} = req.body;
-    const user = db.users.list().find((user) => user.email === email);
-    if (!(user && user.password === password)) {
-        res.sendStatus(401);
-        return;
-    }
-    const token = jwt.sign({sub: user.id}, jwtSecret);
-    res.send({token});
+    const user = User.findOne((user) => user.email === email).then(user1 => {
+        if (!(user1 && user1.password === password)) {
+            res.sendStatus(401);
+            return;
+        }
+        const token = jwt.sign({sub: user.id}, jwtSecret);
+        res.send({token});
+    });
+
 });
 
 const typeDefs = await readFile('./schema.graphql', 'utf8');
