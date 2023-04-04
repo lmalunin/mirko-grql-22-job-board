@@ -10,11 +10,12 @@
     "body-parser": "1.19.0",
     "cors": "2.8.5",
     "express": "4.17.1",
-    "express-jwt": "5.3.3",
+    "express-jwt": "^8.2.1",
     "fakebase": "^0.3.0",
     "graphql": "^16.6.0",
-    "jsonwebtoken": "8.5.1",
-    "notarealdb": "0.2.2"
+    "jsonwebtoken": "^9.0.0",
+    "notarealdb": "0.2.2",
+    "react-router": "^6.10.0"
   },
   "devDependencies": {
     "nodemon": "2.0.7"

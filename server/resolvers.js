@@ -1,5 +1,11 @@
 import {Company, Job} from './db.js';
 
+function rejectIf(condition) {
+    if (condition) {
+        throw new Error('Unauthorized');
+    }
+}
+
 export const resolvers = {
     Query: {
         company: (_root, {id}) => Company.findById(id),
@@ -18,6 +24,9 @@ export const resolvers = {
     },
 
     Mutation: {
-        createJob: (_root, {input}) => Job.create(input)
+        createJob: (_root, {input}, {user}) => {
+            rejectIf(!user);
+            return Job.create({...input, companyId: user.companyId});
+        },
     }
 };

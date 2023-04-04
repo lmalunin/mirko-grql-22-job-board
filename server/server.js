@@ -5,38 +5,45 @@ import cors from 'cors';
 import express from 'express';
 import expressJwt from 'express-jwt';
 import jwt from 'jsonwebtoken';
+import {expressjwt} from 'express-jwt';
 import db, {User} from '../server/db.js';
 import {readFile} from 'fs/promises';
 import {resolvers} from './resolvers.js';
 
-const port = 9000;
-const jwtSecret = Buffer.from('Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt', 'base64');
+const PORT = 9000;
+const JWT_SECRET = Buffer.from('Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt', 'base64');
 
 const app = express();
-app.use(cors(), bodyParser.json(), expressJwt({
-    secret: jwtSecret,
-    credentialsRequired: false
+app.use(cors(), express.json(), expressjwt({
+    algorithms: ['HS256'],
+    credentialsRequired: false,
+    secret: JWT_SECRET,
 }));
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const {email, password} = req.body;
-    const user = User.findOne((user) => user.email === email).then(user1 => {
-        if (!(user1 && user1.password === password)) {
-            res.sendStatus(401);
-            return;
-        }
-        const token = jwt.sign({sub: user.id}, jwtSecret);
-        res.send({token});
-    });
-
+    const user = await User.findOne((user) => user.email === email);
+    if (user && user.password === password) {
+        const token = jwt.sign({sub: user.id}, JWT_SECRET);
+        res.json({token});
+    } else {
+        res.sendStatus(401);
+    }
 });
 
 const typeDefs = await readFile('./schema.graphql', 'utf8');
-const apolloServer = new ApolloServer({typeDefs, resolvers});
+const context = async ({req}) => {
+    if (req.auth) {
+        const user = await User.findById(req.auth.sub);
+        return {user};
+    }
+    return {};
+};
+const apolloServer = new ApolloServer({typeDefs, resolvers, context});
 await apolloServer.start();
 apolloServer.applyMiddleware({app, path: '/graphql'});
 
-app.listen({port}, () => {
-    console.info(`Server started on port ${port}`);
-    console.log(`GraphQL endpoint: http:localhost:${port}/graphql`);
+app.listen({port: PORT}, () => {
+    console.info(`Server started on port ${PORT}`);
+    console.log(`GraphQL endpoint: http:localhost:${PORT}/graphql`);
 });

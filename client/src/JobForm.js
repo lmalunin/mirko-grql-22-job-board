@@ -1,50 +1,58 @@
-import React, { Component } from 'react';
+import {useState} from 'react';
+import {useNavigate} from 'react-router';
+import {useCreateJob} from './graphql/hooks';
 
-export class JobForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {title: '', description: ''};
-  }
+function JobForm() {
+    const navigate = useNavigate();
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const {createJob, loading} = useCreateJob();
 
-  handleChange(event) {
-    const {name, value} = event.target;
-    this.setState({[name]: value});
-  }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const job = await createJob(title, description);
+        navigate(`/jobs/${job.id}`);
+    };
 
-  handleClick(event) {
-    event.preventDefault();
-    console.log('should post a new job:', this.state);
-  }
-
-  render() {
-    const {title, description} = this.state;
     return (
-      <div>
-        <h1 className="title">New Job</h1>
-        <div className="box">
-          <form>
-            <div className="field">
-              <label className="label">Title</label>
-              <div className="control">
-                <input className="input" type="text" name="title" value={title}
-                  onChange={this.handleChange.bind(this)} />
-              </div>
+        <div>
+            <h1 className="title">
+                New Job
+            </h1>
+            <div className="box">
+                <form>
+                    <div className="field">
+                        <label className="label">
+                            Title
+                        </label>
+                        <div className="control">
+                            <input className="input" type="text" value={title}
+                                   onChange={(event) => setTitle(event.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <div className="field">
+                        <label className="label">
+                            Description
+                        </label>
+                        <div className="control">
+              <textarea className="textarea" rows={10} value={description}
+                        onChange={(event) => setDescription(event.target.value)}
+              />
+                        </div>
+                    </div>
+                    <div className="field">
+                        <div className="control">
+                            <button className="button is-link" disabled={loading}
+                                    onClick={handleSubmit}>
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div className="field">
-              <label className="label">Description</label>
-              <div className="control">
-                <textarea className="input" style={{height: '10em'}}
-                  name="description" value={description} onChange={this.handleChange.bind(this)} />
-              </div>
-            </div>
-            <div className="field">
-              <div className="control">
-                <button className="button is-link" onClick={this.handleClick.bind(this)}>Submit</button>
-              </div>
-            </div>
-          </form>
         </div>
-      </div>
     );
-  }
 }
+
+export default JobForm;
