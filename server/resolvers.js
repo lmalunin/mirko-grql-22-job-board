@@ -28,5 +28,11 @@ export const resolvers = {
             rejectIf(!user);
             return Job.create({...input, companyId: user.companyId});
         },
+        deleteJob: async (_root, {id}, {user}) => {
+            rejectIf(!user);
+            const job = await Job.findById(id);
+            rejectIf(job.companyId !== user.companyId);
+            return Job.delete(id);
+        },
     }
 };
